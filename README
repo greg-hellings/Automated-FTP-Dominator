@@ -1,0 +1,21 @@
+Created by greg-hellings on github.com. Copyright 2010.
+I can be reached at greg-ftp-dominator@thehellings.com
+
+=== Licenses ===
+This software is released under the terms of the GNU General Public License, version 3.
+See the file COPYING for a copy of the license and further information.
+
+=== Requires ===
+Python 3.1 (accessible from /usr/bin/python3.1 - this is the default for Ubuntu 9.10)
+If you have your Python 3.1 executable somewhere else, edit the require location at
+the top of the files.
+
+To execute a single upload to a given address, cd into the publisher/ directory and
+execute the following command:
+
+./publisher.py ftp://<username>:<password>@<host>/<path> <file | directory>
+
+The script will then login to <host> with <username> and <password> authentication tokens
+and will upload the file or directory specified to the destination you have specified.  That
+location must already exist, but if you're uploading a directory to those locations, then
+that directory and the whole tree under it will be created on the destination machine.
