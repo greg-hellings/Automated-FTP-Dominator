@@ -25,7 +25,7 @@ Copyright 2010 - Greg Hellings
 # that, then call transmit() and it will perform its
 # tasks.
 
-from abstract import DomAbstractPublisher
+from publisher.abstract import DomAbstractPublisher
 # Seems better to do this import out here, only once, rather than many times
 import ftplib
 import os
@@ -69,6 +69,7 @@ class DomFTP(DomAbstractPublisher):
 			# Get the directory name
 			base, newsource = os.path.split(path)
 			# Change into the directory locally
+			self._whereami = os.getcwd()
 			os.chdir(base)
 			# Check for the existence of the directory remotely and create if it's not there
 			remote = ftp.nlst()
@@ -84,9 +85,12 @@ class DomFTP(DomAbstractPublisher):
 				for f in files:
 					self._publish(os.path.join(root, f), ftp)
 					#print('Uploading ' + f + ' from ' + root)
+			# Change back to the original directory
+			os.chdir(self._whereami)
 		else:
 			self._publish(source, ftp)
 		
+		print('  Complete!')
 		ftp.close()
 		return True
 

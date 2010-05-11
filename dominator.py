@@ -18,28 +18,30 @@ Copyright 2010 - Greg Hellings
     <http://www.gnu.org/licenses/>.
 
 '''
-# A single function which has knowledge of the
-# different types of transport layers this program
-# will support and can handle them all in one fell
-# swoop
 
-from urllib.parse import urlparse
-from publisher.ftppublisher import DomFTP
-
-def publish(url, source):
-	parsed = urlparse(url)
-	
-	if parsed.scheme == 'ftp':
-		trans = DomFTP(url)
-		return trans.publish(source)
-	else:
-		print('Unknown transport scheme')
-		return False
-
+import json
 import sys
-if sys.argv[0] == './publisher.py':
-	if len(sys.argv) != 3:
-		print('Usage: ./publish.py [url] [file]')
-	else:
-		if publish(sys.argv[1], sys.argv[2]): print('Test successful')
-		else: print('Test failed. Check error messages')
+import os
+from publisher.publisher import publish
+
+def get_config():
+	path = os.path.expanduser("~/.automated-ftp-dominator/profiles/default")
+	with open(path, 'r') as f:
+		return json.load(f)
+
+def __main__():
+	# Read configuration
+	config = get_config()
+	where = sys.argv[1]
+	# Iterate over each entry
+	for site in config:
+		publish(site['destination'], where)
+
+def __usage__():
+	print('Usage: {} <what to upload>'.format(sys.argv[0]))
+	sys.exit(0)
+	
+if len(sys.argv) == 2:
+	__main__()
+else:
+	__usage__()
