@@ -1,4 +1,4 @@
-#!/usr/bin/python3.1
+#!/usr/bin/python
 '''
 Copyright 2010 - Greg Hellings
 
@@ -19,19 +19,20 @@ Copyright 2010 - Greg Hellings
 
 '''
 
-import json
 import sys
 import os
 from publisher.publisher import publish
+from gui_config import DomConfigurator
 
-def get_config():
-	path = os.path.expanduser("~/.automated-ftp-dominator/profiles/default")
-	with open(path, 'r') as f:
-		return json.load(f)
+#def get_config():
+#	path = os.path.expanduser("~/.automated-ftp-dominator/profiles/default")
+#	with open(path, 'r') as f:
+#		return json.load(f)
 
 def __main__():
 	# Read configuration
-	config = get_config()
+	configurator = DomConfigurator()
+	config = configurator.getConfig('default')
 	where = sys.argv[1]
 	# Iterate over each entry
 	for site in config:

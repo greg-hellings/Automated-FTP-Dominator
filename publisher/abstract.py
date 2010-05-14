@@ -24,7 +24,7 @@ Copyright 2010 - Greg Hellings
 
 class DomAbstractPublisher:
 	def _parse(self, url):
-		from urllib.parse import urlparse
+		from urlparse import urlparse
 		
 		parsed = urlparse(url)
 		self.scheme = parsed.scheme

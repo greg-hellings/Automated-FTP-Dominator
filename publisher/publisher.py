@@ -1,4 +1,4 @@
-#!/usr/bin/python3.1
+#!/usr/bin/python
 '''
 Copyright 2010 - Greg Hellings
 
@@ -23,8 +23,8 @@ Copyright 2010 - Greg Hellings
 # will support and can handle them all in one fell
 # swoop
 
-from urllib.parse import urlparse
-from publisher.ftppublisher import DomFTP
+from urlparse import urlparse
+from ftppublisher import DomFTP
 
 def publish(url, source):
 	parsed = urlparse(url)

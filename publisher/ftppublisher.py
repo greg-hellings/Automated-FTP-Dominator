@@ -25,7 +25,7 @@ Copyright 2010 - Greg Hellings
 # that, then call transmit() and it will perform its
 # tasks.
 
-from publisher.abstract import DomAbstractPublisher
+from abstract import DomAbstractPublisher
 # Seems better to do this import out here, only once, rather than many times
 import ftplib
 import os
@@ -61,7 +61,7 @@ class DomFTP(DomAbstractPublisher):
 			return False
 		
 		# Begin user output
-		print('Uploading to {0}://{1}{2}'.format(self.scheme, self.host, self.path), end=': ')
+		print 'Uploading to {0}://{1}{2}'.format(self.scheme, self.host, self.path),
 		# Now we figure out if we're dealing with a single file
 		if os.path.isdir(source):
 			# Get the full path to where we're going
