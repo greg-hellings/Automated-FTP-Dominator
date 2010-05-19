@@ -19,8 +19,10 @@ Copyright 2010 - Greg Hellings
 '''
 
 from PyQt4 import QtGui, QtCore
+from gui.dialogs.DomEditEntry import DomEditEntryDialog
 
 class Config(QtGui.QMainWindow):
+	configObject = None
 	_newconfig = {}
 	def __init__(self, config):
 		QtGui.QMainWindow.__init__(self, None)
@@ -98,6 +100,15 @@ class Config(QtGui.QMainWindow):
 	# Returns a layout that contains a "Save Contents" button
 	def makeSaveButton(self):
 		hbox = QtGui.QHBoxLayout()
+		# The + and - buttons
+		addButton = QtGui.QPushButton(QtGui.QIcon('icons/add_16x16.png'), 'Add Entry')
+		self.connect(addButton, QtCore.SIGNAL('clicked()'), self.addEntry)
+		delButton = QtGui.QPushButton(QtGui.QIcon('icons/delete_16x16.png'), 'Delete Entry')
+		self.connect(delButton, QtCore.SIGNAL('clicked()'), self.delEntry)
+		hbox.addWidget(addButton)
+		hbox.addWidget(delButton)
+		
+		# Now the save button
 		hbox.addStretch(1)
 		saveButton = QtGui.QPushButton('Save Changes')
 		hbox.addWidget(saveButton)
@@ -107,10 +118,9 @@ class Config(QtGui.QMainWindow):
 	# Listens for changes in the active configuration and will update the UI to reflect that
 	def activateConfig(self, config):
 		# TODO: Make display thingie
-		configObject = self._config.getConfig(config)
+		self.configObject = self._config.getConfig(config)
 		self.siteList.reset()
-		for entry in configObject:
-			#print entry
+		for entry in self.configObject:
 			QtGui.QListWidgetItem(entry['name'] + '\t' + entry['destination'], self.siteList)
 
 	###############################################################################################################################
@@ -118,6 +128,7 @@ class Config(QtGui.QMainWindow):
 	###############################################################################################################################
 	# Slot where the new button signal is connected
 	def newConfig(self):
+		# TODO: Confirm discard changes
 		name, ok = QtGui.QInputDialog.getText(self, 'New Config', 'Name of new configuration', QtGui.QLineEdit.Normal, 'default')
 		name = name.simplified()
 		if ok and name != '':
@@ -127,4 +138,33 @@ class Config(QtGui.QMainWindow):
 
 	def saveConfig(self):
 		# TODO: Process and save
+		pass
+	
+	# Displays a dialog that will allow the user to
+	# create a new element in the current configuration
+	def addEntry(self):
+		dialog = DomEditEntryDialog(self, None)
+		value = dialog.exec_()
+		
+		# Only if the user really pushed the 'OK' or 'Enter' button/key
+		if value == QtGui.QDialog.Accepted:
+			name = dialog.getSiteName()
+			value = dialog.getSiteURL()
+			# Makes sure it doesn't duplicate the name of another site
+			duplicate = False
+			for element in self.configObject:
+				if element['name'] == name: duplicate = True
+			# Only proceed if we are in a valid place
+			if not duplicate:
+				self.configObject.append({'name' : name, 'destination' : value})
+				# Displays in the dialog
+				QtGui.QListWidgetItem(name + '\t' + value, self.siteList)
+			else:
+				print 'Duplicate detected'
+				QtGui.QMessageBox.warning(self, 'Duplicate Detected', 'That entry already exists, ignoring.')
+		else:
+			print 'Rejecting'
+	
+	def delEntry(self):
+		# TODO: Process removing an entry from the config dictionary/dialog
 		pass

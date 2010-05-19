@@ -5,6 +5,10 @@ I can be reached at greg-ftp-dominator@thehellings.com
 This software is released under the terms of the GNU General Public License, version 3.
 See the file COPYING for a copy of the license and further information.
 
+=== Acknowledgements ===
+Thanks to http://www.iconlet.com/info/79659_add_16x16 and Alexandre Moore for providing some icons under the LGPL
+Thanks also to http://www.iconlet.com/info/8507_delete_16x16 and Mark James for providing other icons under the Creative Commons Attribution 2.5 license
+
 === Requires ===
 Python 3.1 (accessible from /usr/bin/python3.1 - this is the default for Ubuntu 9.10)
 If you have your Python 3.1 executable somewhere else, edit the require location at
