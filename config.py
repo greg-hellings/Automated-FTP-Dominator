@@ -42,6 +42,7 @@ class DomConfigurator:
 			return None
 			
 	def saveConfig(self, name, data):
+		name = str(name)
 		with open(os.path.join(self._configpath, name), 'w') as f:
 			json.dump(data, f)
 		# Save the name of it

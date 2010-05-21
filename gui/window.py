@@ -22,8 +22,9 @@ from PyQt4 import QtGui, QtCore
 from gui.dialogs.DomEditEntry import DomEditEntryDialog
 
 class Config(QtGui.QMainWindow):
+	changes = None
 	configObject = None
-	_newconfig = {}
+	_configname = 'default'
 	def __init__(self, config):
 		QtGui.QMainWindow.__init__(self, None)
 		self._config = config
@@ -42,6 +43,7 @@ class Config(QtGui.QMainWindow):
 		save = self.makeSaveButton()
 		
 		self.siteList = QtGui.QListWidget()
+		self.siteList.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
 		
 		# Main vertical layout
 		vbox = QtGui.QVBoxLayout()
@@ -53,7 +55,7 @@ class Config(QtGui.QMainWindow):
 		centralWidget.setLayout(vbox)
 		self.setCentralWidget(centralWidget)
 		
-		if len(self._config._list) > 0: self.activateConfig(self._config._list[0])
+		if len(self._config._list) > 0: self.activateConfig(self.conf_list.currentText())
 		else: self.newConfig()
 
 	#################################################################################################################################
@@ -69,7 +71,7 @@ class Config(QtGui.QMainWindow):
 		for this_config in self._config._list:
 			self.conf_list.addItem(this_config)
 		conf_hbox.addWidget(self.conf_list)
-		self.connect(self.conf_list, QtCore.SIGNAL('activated(const QString&)'), self.activateConfig)
+		self.connect(self.conf_list, QtCore.SIGNAL('currentIndexChanged(const QString&)'), self.activateConfig)
 		# Populate the first config available
 
 		# And an "Add New" box
@@ -103,6 +105,8 @@ class Config(QtGui.QMainWindow):
 		# The + and - buttons
 		addButton = QtGui.QPushButton(QtGui.QIcon('icons/add_16x16.png'), 'Add Entry')
 		self.connect(addButton, QtCore.SIGNAL('clicked()'), self.addEntry)
+		editButton = QtGui.QPushButton(QtGui.QIcon('icons/edit_16x16.png'), 'Edit Entry')
+		self.connect(editButton, QtCore.SIGNAL('clicked()'), self.editEntry)
 		delButton = QtGui.QPushButton(QtGui.QIcon('icons/delete_16x16.png'), 'Delete Entry')
 		self.connect(delButton, QtCore.SIGNAL('clicked()'), self.delEntry)
 		hbox.addWidget(addButton)
@@ -111,34 +115,51 @@ class Config(QtGui.QMainWindow):
 		# Now the save button
 		hbox.addStretch(1)
 		saveButton = QtGui.QPushButton('Save Changes')
+		self.connect(saveButton, QtCore.SIGNAL('clicked()'), self.saveConfig)
 		hbox.addWidget(saveButton)
 		
 		return hbox
 
 	# Listens for changes in the active configuration and will update the UI to reflect that
 	def activateConfig(self, config):
-		# TODO: Make display thingie
-		self.configObject = self._config.getConfig(config)
-		self.siteList.reset()
-		for entry in self.configObject:
-			QtGui.QListWidgetItem(entry['name'] + '\t' + entry['destination'], self.siteList)
+		# Confirm that we want to discard the changes
+		if not self._confirmDiscardChanges():
+			return None
+		
+		# Having attained that permission, let us proceed onward with great haste
+		try:
+			self.configObject = self._config.getConfig(str(config))
+		except Exception:
+			QtGui.QMessageBox.critical(self, 'Error', 'Error opening config file.')
+			self.configObject = None
+		self.siteList.clear()
+		if self.configObject != None:
+			for entry in self.configObject:
+				QtGui.QListWidgetItem(entry['name'] + '\t' + entry['destination'], self.siteList)
+		else:
+			self.configObject = []
+		# We don't have changes anymore
+		self.changes = False
+		self._configname = config
 
 	###############################################################################################################################
 	################################################### Listeners #################################################################
 	###############################################################################################################################
 	# Slot where the new button signal is connected
 	def newConfig(self):
-		# TODO: Confirm discard changes
+		# Confirm that it's OK for us to discard changes
+		if not self._confirmDiscardChanges(): return None
 		name, ok = QtGui.QInputDialog.getText(self, 'New Config', 'Name of new configuration', QtGui.QLineEdit.Normal, 'default')
 		name = name.simplified()
 		if ok and name != '':
-			self._newconfig['name'] = name
-			self._newconfig['data'] = []
+			self._configname = name
+			self.configObject = []
 			self.conf_list.addItem(name)
 
 	def saveConfig(self):
-		# TODO: Process and save
-		pass
+		self._config.saveConfig(self._configname, self.configObject)
+		QtGui.QMessageBox.information(self, 'Saved', 'Configuration saved')
+		self.changes = False
 	
 	# Displays a dialog that will allow the user to
 	# create a new element in the current configuration
@@ -156,9 +177,11 @@ class Config(QtGui.QMainWindow):
 				if element['name'] == name: duplicate = True
 			# Only proceed if we are in a valid place
 			if not duplicate:
-				self.configObject.append({'name' : name, 'destination' : value})
+				self.configObject.append({'name' : str(name), 'destination' : str(value)})
 				# Displays in the dialog
 				QtGui.QListWidgetItem(name + '\t' + value, self.siteList)
+				# Flag the current entry as changed
+				self.changes = True
 			else:
 				print 'Duplicate detected'
 				QtGui.QMessageBox.warning(self, 'Duplicate Detected', 'That entry already exists, ignoring.')
@@ -168,3 +191,26 @@ class Config(QtGui.QMainWindow):
 	def delEntry(self):
 		# TODO: Process removing an entry from the config dictionary/dialog
 		pass
+	
+	def editEntry(self):
+		# TODO: Process editing an object... should be fun!
+		pass
+	
+	#########################################################################################################################################
+	##################################################### Other Helper Functions ############################################################
+	#########################################################################################################################################
+	def _confirmDiscardChanges(self):
+		# This is the first execution
+		if self.changes == None:
+			self.changes = False
+			return True
+		elif self.changes == True:
+			# Ask the user if they wish to discard the changes
+			ok = QtGui.QMessageBox.question(self, 'Confirm Discard', 'Are you sure you wish to discard unsaved changes?', 'Yes', 'No')
+			if ok == 0:
+				return True
+			else:
+				return False
+		else:
+			# There are no changes, we can proceed
+			return True
