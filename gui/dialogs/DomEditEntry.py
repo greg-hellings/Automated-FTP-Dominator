@@ -27,27 +27,44 @@ class DomEditEntryDialog(QtGui.QDialog):
 	def __init__(self, parent, entry):
 		QtGui.QDialog.__init__(self, parent)
 		
-		self._original = entry
+		if entry != None:
+			self._original = entry
+			edit = True
+		else:
+			self._original = {'name' : '', 'user' : '', 'pw' : '', 'destination' : ''}
+			edit = False
 		
 		grid = QtGui.QGridLayout()
 		
 		nameLabel	= QtGui.QLabel('Name: ')
-		self._nameBox	= QtGui.QLineEdit()
+		self._nameBox	= QtGui.QLineEdit(self._original['name'])
+		if edit:
+			self._nameBox.setReadOnly(True)
 		
 		urlLabel	= QtGui.QLabel('URL: ')
-		self._urlBox	= QtGui.QLineEdit()
+		self._urlBox	= QtGui.QLineEdit(self._original['destination'])
+		
+		userLabel	= QtGui.QLabel('Username:')
+		self._userBox	= QtGui.QLineEdit(self._original['user'])
+		
+		passLabel	= QtGui.QLabel('Password:')
+		self._passBox	= QtGui.QLineEdit(self._original['pw'])
 		
 		# Add the things to the Grid layout
 		grid.addWidget(nameLabel, 0, 0)
 		grid.addWidget(self._nameBox, 0, 1, 1, 2)
 		grid.addWidget(urlLabel, 1, 0)
 		grid.addWidget(self._urlBox, 1, 1, 1, 2)
+		grid.addWidget(userLabel, 2, 0)
+		grid.addWidget(self._userBox, 2, 1, 1, 2)
+		grid.addWidget(passLabel, 3, 0)
+		grid.addWidget(self._passBox, 3, 1, 1, 2)
 		
 		# Add the OK/Cancel buttons
 		ok = QtGui.QPushButton('OK')
 		cancel = QtGui.QPushButton('Cancel')
-		grid.addWidget(ok, 2, 1)
-		grid.addWidget(cancel, 2, 2)
+		grid.addWidget(ok, 4, 1)
+		grid.addWidget(cancel, 4, 2)
 		
 		# Connect the buttons to the proper slots on the Dialog
 		self.connect(ok, QtCore.SIGNAL('clicked()'), self, QtCore.SLOT('accept()'))
@@ -63,6 +80,8 @@ class DomEditEntryDialog(QtGui.QDialog):
 	def done(self, event):
 		self._name = self._nameBox.text()
 		self._value = self._urlBox.text()
+		self._user = self._userBox.text()
+		self._pass = self._passBox.text()
 		
 		#event.accept()
 		QtGui.QDialog.done(self, event)
@@ -78,3 +97,15 @@ class DomEditEntryDialog(QtGui.QDialog):
 			return None
 		else:
 			return self._value
+	
+	def getUser(self):
+		if self._user and self._user.trimmed() == '':
+			return None
+		else:
+			return self._user
+	
+	def getPassword(self):
+		if self._pass and self._pass.trimmed() == '':
+			return None
+		else:
+			return self._pass

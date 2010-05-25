@@ -43,7 +43,7 @@ class Config(QtGui.QMainWindow):
 		save = self.makeSaveButton()
 		
 		self.siteList = QtGui.QListWidget()
-		self.siteList.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
+		#self.siteList.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
 		
 		# Main vertical layout
 		vbox = QtGui.QVBoxLayout()
@@ -110,6 +110,7 @@ class Config(QtGui.QMainWindow):
 		delButton = QtGui.QPushButton(QtGui.QIcon('icons/delete_16x16.png'), 'Delete Entry')
 		self.connect(delButton, QtCore.SIGNAL('clicked()'), self.delEntry)
 		hbox.addWidget(addButton)
+		hbox.addWidget(editButton)
 		hbox.addWidget(delButton)
 		
 		# Now the save button
@@ -171,13 +172,15 @@ class Config(QtGui.QMainWindow):
 		if value == QtGui.QDialog.Accepted:
 			name = dialog.getSiteName()
 			value = dialog.getSiteURL()
+			user = dialog.getUser()
+			pw   = dialog.getPassword()
 			# Makes sure it doesn't duplicate the name of another site
 			duplicate = False
 			for element in self.configObject:
 				if element['name'] == name: duplicate = True
 			# Only proceed if we are in a valid place
 			if not duplicate:
-				self.configObject.append({'name' : str(name), 'destination' : str(value)})
+				self.configObject.append({'name' : str(name), 'destination' : str(value), 'user' : str(user), 'pw' : str(pw)})
 				# Displays in the dialog
 				QtGui.QListWidgetItem(name + '\t' + value, self.siteList)
 				# Flag the current entry as changed
@@ -189,12 +192,38 @@ class Config(QtGui.QMainWindow):
 			print 'Rejecting'
 	
 	def delEntry(self):
-		# TODO: Process removing an entry from the config dictionary/dialog
-		pass
+		item = self.siteList.takeItem(self.siteList.currentRow())
+		text = str(item.text())
+		name, trash, url = text.partition('\t')
+		# Remove from our list
+		for obj in self.configObject:
+			if obj['name'] == name: self.configObject.remove(obj)
+		# Make sure we know there are changes pending
+		self.changes = True
 	
 	def editEntry(self):
-		# TODO: Process editing an object... should be fun!
-		pass
+		# Find out which one we're on
+		item = self.siteList.currentItem()
+		name, trash, url = str(item.text()).partition('\t')
+		entry = None
+		for obj in self.configObject:
+			if obj['name'] == name: entry = obj
+		# Create & show the dialog
+		dialog = DomEditEntryDialog(self, entry)
+		value = dialog.exec_()
+		
+		# Process answers
+		if value == QtGui.QDialog.Accepted:
+			# Iterate over the configs
+			for obj in self.configObject:
+				if obj['name'] == name:
+					idx = self.configObject.index(obj)
+					self.configObject[idx]['name'] = str(dialog.getSiteName())
+					self.configObject[idx]['destination'] = str(dialog.getSiteURL())
+					self.configObject[idx]['user'] = str(dialog.getUser())
+					self.configObject[idx]['pw'] = str(dialog.getPassword())
+					item.setText(self.configObject[idx]['name'] + '\t' + self.configObject[idx]['destination'])
+					break
 	
 	#########################################################################################################################################
 	##################################################### Other Helper Functions ############################################################
