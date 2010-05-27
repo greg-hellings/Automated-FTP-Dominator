@@ -22,27 +22,27 @@ Copyright 2010 - Greg Hellings
 import sys
 import os
 from publisher.publisher import publish
-from gui_config import DomConfigurator
-
-#def get_config():
-#	path = os.path.expanduser("~/.automated-ftp-dominator/profiles/default")
-#	with open(path, 'r') as f:
-#		return json.load(f)
+from gui.wizard.upload import Wizard
+from config import DomConfigurator
+from PyQt4 import QtGui
 
 def __main__():
+	app = QtGui.QApplication(sys.argv)
+
+	wizard = Wizard()
+	wizard.show()
 	# Read configuration
-	configurator = DomConfigurator()
-	config = configurator.getConfig('default')
-	where = sys.argv[1]
+	#configurator = DomConfigurator()
+	#config = configurator.getConfig('default')
+	#where = sys.argv[1]
 	# Iterate over each entry
-	for site in config:
-		publish(site['destination'], where)
+	#for site in config:
+	#	publish(site['destination'], where)
+	
+	sys.exit(app.exec_())
 
 def __usage__():
 	print('Usage: {} <what to upload>'.format(sys.argv[0]))
 	sys.exit(0)
 	
-if len(sys.argv) == 2:
-	__main__()
-else:
-	__usage__()
+__main__()

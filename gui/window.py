@@ -43,6 +43,7 @@ class Config(QtGui.QMainWindow):
 		save = self.makeSaveButton()
 		
 		self.siteList = QtGui.QListWidget()
+		self.siteList.setSortingEnabled(True)
 		#self.siteList.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
 		
 		# Main vertical layout
@@ -142,6 +143,8 @@ class Config(QtGui.QMainWindow):
 		# We don't have changes anymore
 		self.changes = False
 		self._configname = config
+		# We like sortings!
+		self.siteList.sortItems()
 
 	###############################################################################################################################
 	################################################### Listeners #################################################################
@@ -185,6 +188,8 @@ class Config(QtGui.QMainWindow):
 				QtGui.QListWidgetItem(name + '\t' + value, self.siteList)
 				# Flag the current entry as changed
 				self.changes = True
+				# Sorting is fun!
+				self.siteList.sortItems()
 			else:
 				print 'Duplicate detected'
 				QtGui.QMessageBox.warning(self, 'Duplicate Detected', 'That entry already exists, ignoring.')
