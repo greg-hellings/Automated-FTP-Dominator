@@ -26,20 +26,21 @@ Copyright 2010 - Greg Hellings
 from urlparse import urlparse
 from ftppublisher import DomFTP
 
-def publish(url, source):
-	parsed = urlparse(url)
+def publish(destination, source):
+	parsed = urlparse(destination['destination'])
 	
 	if parsed.scheme == 'ftp':
-		trans = DomFTP(url)
+		trans = DomFTP(destination)
 		return trans.publish(source)
 	else:
 		print('Unknown transport scheme')
-		return False
+		return (False, 'Unknown transport scheme')
 
-import sys
-if sys.argv[0] == './publisher.py':
-	if len(sys.argv) != 3:
-		print('Usage: ./publish.py [url] [file]')
-	else:
-		if publish(sys.argv[1], sys.argv[2]): print('Test successful')
-		else: print('Test failed. Check error messages')
+# This doesn't work since the change to not using straight URLs
+#import sys
+#if sys.argv[0] == './publisher.py':
+#	if len(sys.argv) != 3:
+#		print('Usage: ./publish.py [url] [file]')
+#	else:
+#		if publish(sys.argv[1], sys.argv[2]): print('Test successful')
+#		else: print('Test failed. Check error messages')

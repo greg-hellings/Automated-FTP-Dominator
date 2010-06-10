@@ -30,8 +30,6 @@ class DomAbstractPublisher:
 		self.scheme = parsed.scheme
 		self.path   = parsed.path.rstrip('/')
 		self.host   = parsed.hostname
-		self.user   = parsed.username
-		self.passwd = parsed.password
 	
 	def _mode(self, fname):
 		import os

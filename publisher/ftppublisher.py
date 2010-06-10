@@ -35,9 +35,11 @@ class DomFTP(DomAbstractPublisher):
 	_source = None
 	# Our initial few little thingies to get ourself setup
 	def __init__(self, destination):
-		self._parse(destination)
+		self._parse(destination['destination'])
+		self.user = destination['user']
+		self.passwd = destination['pw']
 		self.base = self.path
-		self._url = destination
+		self._url = destination['destination']
 	
 	def publish(self, source):
 		# Open the connection to the remote machine
@@ -46,11 +48,11 @@ class DomFTP(DomAbstractPublisher):
 		except ftplib.error_temp:
 			print('There was a temporary error from server ' + self.host)
 			ftp.close()
-			return False
+			return (False, 'Temporary error ' + self.host)
 		except Exception:
 			print('An unexpected error was returned by ' + self.host)
 			ftp.close()
-			return False
+			return (False, 'Unexpected error ' + self.host)
 
 		# First we need to change into the remote directory
 		try:
@@ -58,7 +60,7 @@ class DomFTP(DomAbstractPublisher):
 		except Exception as e:
 			print('Unable to change remote directories on ' + self.host)
 			ftp.close()
-			return False
+			return (False, 'Invalid directory ' + self.host)
 		
 		# Begin user output
 		print 'Uploading to {0}://{1}{2}'.format(self.scheme, self.host, self.path),
@@ -92,7 +94,7 @@ class DomFTP(DomAbstractPublisher):
 		
 		print('  Complete!')
 		ftp.close()
-		return True
+		return (True, 'Success')
 
 	def _publish(self, source, ftp):
 		''' Despite the distinct similarities between this method and the one above in their
