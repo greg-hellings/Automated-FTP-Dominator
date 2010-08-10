@@ -51,7 +51,7 @@ class DomFTP(DomAbstractPublisher):
 			return (False, 'Temporary error ' + self.host)
 		except Exception:
 			print('An unexpected error was returned by ' + self.host)
-			ftp.close()
+			#ftp.close()
 			return (False, 'Unexpected error ' + self.host)
 
 		# First we need to change into the remote directory

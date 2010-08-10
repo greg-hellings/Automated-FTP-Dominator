@@ -214,6 +214,11 @@ class ThirdPage(QtGui.QWizardPage):
 		self.progressBar = QtGui.QProgressBar()
 		grid.addWidget(self.progressBar, 4, 0)
 		
+		# Again button
+		againButton = QtGui.QPushButton('Again!')
+		grid.addWidget(againButton, 5, 0)
+		self.connect(againButton, QtCore.SIGNAL('clicked(bool)'), self.again)
+		
 		grid.addWidget(QtGui.QLabel('I will now be uploading.  Please be patient, especially if you are uploading a large directory'), 0, 0)
 		
 		self.setLayout(grid)
@@ -223,18 +228,18 @@ class ThirdPage(QtGui.QWizardPage):
 		calls that will do the uploading and so on and so forth.'''
 		self.event = Event()
 		osites = self.dominateParent.domSites.selectedItems()
-		sites = []
+		self.sites = []
 		for site in osites:
 			name, trash, url = str(site.text()).partition('\t')
-			sites.append(name)
-		config = self.field('config').toString()
-		additional = self.field('additional-path-elements').toString()
-		source = str(self.field('source').toString())
+			self.sites.append(name)
+		self.config = self.field('config').toString()
+		self.additional = self.field('additional-path-elements').toString()
+		self.source = str(self.field('source').toString())
 		
-		self.progressBar.setMaximum(len(sites))
+		self.progressBar.setMaximum(len(self.sites))
 		self.progressBar.setValue(0)
 			
-		thread = Worker(self, sites, config, additional, source)
+		thread = Worker(self, self.sites, self.config, self.additional, self.source)
 		self.connect(thread, QtCore.SIGNAL('updateProgress()'), self.updateProgress)
 		thread.start()
 		pass
@@ -244,6 +249,13 @@ class ThirdPage(QtGui.QWizardPage):
 	
 	def updateProgress(self):
 		self.progressBar.setValue(self.progressBar.value() + 1)
+		
+	def again(self, wtf):
+		self.progressBar.setValue(0)
+		
+		thread = Worker(self, self.sites, self.config, self.additional, self.source)
+		self.connect(thread, QtCore.SIGNAL('updateProgress()'), self.updateProgress)
+		thread.start()
 		
 
 class Worker(QtCore.QThread):
