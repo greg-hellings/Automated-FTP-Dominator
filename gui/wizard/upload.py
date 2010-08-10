@@ -283,10 +283,10 @@ class Worker(QtCore.QThread):
 			if str(destination['name']) in self.sites:
 				destination['destination'] = str(destination['destination'].rstrip('/') + '/' + self.additional)
 				flag, message = publish(destination, self.source)
-				print 'Flag: %s, Message: %s' % (flag, message)
+				#print 'Flag: %s, Message: %s' % (flag, message)
 				self.emit(QtCore.SIGNAL('updateProgress()'))
-			else:
-				print 'Skipping ' + destination['name']
+			#else:
+				#print 'Skipping ' + destination['name']
 		
 		self.parent.finished = True
 		self.parent.emit(QtCore.SIGNAL('completeChanged()'))

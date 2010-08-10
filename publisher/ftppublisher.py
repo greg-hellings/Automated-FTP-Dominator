@@ -63,7 +63,7 @@ class DomFTP(DomAbstractPublisher):
 			return (False, 'Invalid directory ' + self.host)
 		
 		# Begin user output
-		print 'Uploading to {0}://{1}{2}'.format(self.scheme, self.host, self.path),
+		#print 'Uploading to {0}://{1}{2}'.format(self.scheme, self.host, self.path),
 		# Now we figure out if we're dealing with a single file
 		if os.path.isdir(source):
 			# Get the full path to where we're going
@@ -92,7 +92,7 @@ class DomFTP(DomAbstractPublisher):
 		else:
 			self._publish(source, ftp)
 		
-		print('  Complete!')
+		#print('  Complete!')
 		ftp.close()
 		return (True, 'Success')
 
@@ -123,7 +123,7 @@ class DomFTP(DomAbstractPublisher):
 			print(e)
 			return False
 		
-		sys.stdout.write('.') 	# A little something-something to keep the people happy with progress and feedback.  One . per file transferred
-		sys.stdout.flush()
+		#sys.stdout.write('.') 	# A little something-something to keep the people happy with progress and feedback.  One . per file transferred
+		#sys.stdout.flush()
 		f.close()	# Take care of dangling file pointers
 		return True
