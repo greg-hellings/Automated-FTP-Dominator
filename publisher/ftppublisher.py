@@ -30,6 +30,7 @@ from abstract import DomAbstractPublisher
 import ftplib
 import os
 import sys
+import time
 
 class DomFTP(DomAbstractPublisher):
 	_source = None
@@ -42,6 +43,7 @@ class DomFTP(DomAbstractPublisher):
 		self._url = destination['destination']
 	
 	def publish(self, source):
+		start_timer = time.clock()
 		# Open the connection to the remote machine
 		try:
 			ftp = ftplib.FTP(self.host, self.user, self.passwd)
@@ -49,8 +51,9 @@ class DomFTP(DomAbstractPublisher):
 			print('There was a temporary error from server ' + self.host)
 			ftp.close()
 			return (False, 'Temporary error ' + self.host)
-		except Exception:
+		except Exception as e:
 			print('An unexpected error was returned by ' + self.host)
+			print('Message was: %s' % (e,))
 			#ftp.close()
 			return (False, 'Unexpected error ' + self.host)
 
@@ -94,6 +97,9 @@ class DomFTP(DomAbstractPublisher):
 		
 		#print('  Complete!')
 		ftp.close()
+		end_timer = time.clock()
+		if end_timer - start_timer < 1:
+			time.sleep(1)
 		return (True, 'Success')
 
 	def _publish(self, source, ftp):
